@@ -55,10 +55,7 @@ def _pg_conn():
     import psycopg
     from urllib.parse import urlparse, unquote
 
-    raw = _db_url() or ""
-    parsed = urlparse(raw)
-    import streamlit as st
-    st.write(f"🔌 Connecting to: `{parsed.hostname}:{parsed.port}` as `{parsed.username}`")
+    parsed = urlparse(_db_url() or "")
     conn = psycopg.connect(
         host=parsed.hostname,
         port=parsed.port or 5432,
