@@ -56,6 +56,8 @@ def _pg_conn():
     import psycopg2.extras
 
     url = _db_url()
+    if "sslmode" not in url:
+        url += "?sslmode=require"
     conn = psycopg2.connect(url)
     conn.autocommit = False
     try:
