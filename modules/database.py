@@ -54,11 +54,17 @@ def _sqlite_conn():
 def _pg_conn():
     import psycopg2
     import psycopg2.extras
+    from urllib.parse import urlparse, unquote
 
-    url = _db_url()
-    if "sslmode" not in url:
-        url += "?sslmode=require"
-    conn = psycopg2.connect(url)
+    parsed = urlparse(_db_url())
+    conn = psycopg2.connect(
+        host=parsed.hostname,
+        port=parsed.port or 5432,
+        user=unquote(parsed.username or ""),
+        password=unquote(parsed.password or ""),
+        dbname=(parsed.path or "/postgres").lstrip("/"),
+        sslmode="require",
+    )
     conn.autocommit = False
     try:
         yield conn
