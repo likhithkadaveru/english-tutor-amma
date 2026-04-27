@@ -52,20 +52,19 @@ def _sqlite_conn():
 
 @contextmanager
 def _pg_conn():
-    import psycopg2
-    import psycopg2.extras
+    import psycopg
     from urllib.parse import urlparse, unquote
 
     parsed = urlparse(_db_url())
-    conn = psycopg2.connect(
+    conn = psycopg.connect(
         host=parsed.hostname,
         port=parsed.port or 5432,
         user=unquote(parsed.username or ""),
         password=unquote(parsed.password or ""),
         dbname=(parsed.path or "/postgres").lstrip("/"),
         sslmode="require",
+        autocommit=False,
     )
-    conn.autocommit = False
     try:
         yield conn
         conn.commit()
@@ -77,8 +76,8 @@ def _pg_conn():
 
 
 def _pg_cursor(conn):
-    import psycopg2.extras
-    return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    import psycopg.rows
+    return conn.cursor(row_factory=psycopg.rows.dict_row)
 
 
 # ── Unified connection context manager ───────────────────────────────────────
